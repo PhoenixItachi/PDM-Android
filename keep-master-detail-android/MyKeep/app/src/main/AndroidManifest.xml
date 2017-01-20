@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.example.ilazar.mykeep">
+
+  <uses-permission android:name="android.permission.INTERNET"/>
+
+  <application
+    android:name=".KeepApp"
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+    <activity
+      android:name=".NoteListActivity"
+      android:label="@string/app_name"
+      android:theme="@style/AppTheme.NoActionBar">
+
+      <!-- <intent-filter> -->
+      <!-- <action android:name="android.intent.action.MAIN"/> -->
+
+
+      <!-- <category android:name="android.intent.category.LAUNCHER"/> -->
+      <!-- </intent-filter> -->
+    </activity>
+    <activity
+      android:name=".NoteDetailActivity"
+      android:label="@string/title_note_detail"
+      android:parentActivityName=".NoteListActivity"
+      android:theme="@style/AppTheme.NoActionBar">
+      <meta-data
+        android:name="android.support.PARENT_ACTIVITY"
+        android:value="com.example.ilazar.mykeep.NoteListActivity"/>
+    </activity>
+    <activity
+      android:name=".LoginActivity"
+      android:label="@string/title_activity_login"
+      android:screenOrientation="portrait"
+      android:theme="@style/AppTheme.NoActionBar">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+
+    <provider
+      android:name=".content.provider.NoteContentProvider"
+      android:authorities="anime"
+      android:enabled="true"
+      android:exported="false">
+    </provider>
+  </application>
+
+</manifest>
