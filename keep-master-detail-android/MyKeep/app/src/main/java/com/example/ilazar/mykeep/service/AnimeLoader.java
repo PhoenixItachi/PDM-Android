@@ -12,15 +12,15 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-public class NoteLoader extends OkAsyncTaskLoader<List<Anime>> implements Observer {
-  private static final String TAG = NoteLoader.class.getSimpleName();
-  private final NoteManager mNoteManager;
+public class AnimeLoader extends OkAsyncTaskLoader<List<Anime>> implements Observer {
+  private static final String TAG = AnimeLoader.class.getSimpleName();
+  private final AnimeManager mAnimeManager;
   private List<Anime> mCachedAnimes;
-  private CancellableCallable<List<Anime>> mCancellableCall;
+  private CancellableCallable<LastModifiedList<Anime>> mCancellableCall;
 
-  public NoteLoader(Context context, NoteManager noteManager) {
+  public AnimeLoader(Context context, AnimeManager animeManager) {
     super(context);
-    mNoteManager = noteManager;
+    mAnimeManager = animeManager;
   }
 
   @Override
@@ -28,8 +28,8 @@ public class NoteLoader extends OkAsyncTaskLoader<List<Anime>> implements Observ
     // This method is called on a background thread and should generate a
     // new set of data to be delivered back to the client
     Log.d(TAG, "tryLoadInBackground");
-    mCancellableCall = mNoteManager.getNotesCall();
-//    mCachedAnimes = mNoteManager.executeNotesCall(mCancellableCall);
+    mCancellableCall = mAnimeManager.getAnimesCall();
+    mCachedAnimes = mAnimeManager.executeAnimesCall(mCancellableCall);
     return mCachedAnimes;
   }
 
@@ -59,7 +59,7 @@ public class NoteLoader extends OkAsyncTaskLoader<List<Anime>> implements Observ
       deliverResult(mCachedAnimes);
     }
     // Begin monitoring the underlying data source.
-    mNoteManager.addObserver(this);
+    mAnimeManager.addObserver(this);
     if (takeContentChanged() || mCachedAnimes == null) {
       // When the observer detects a change, it should call onContentChanged()
       // on the Loader, which will cause the next call to takeContentChanged()
@@ -91,7 +91,7 @@ public class NoteLoader extends OkAsyncTaskLoader<List<Anime>> implements Observ
       mCachedAnimes = null;
     }
     // The Loader is being reset, so we should stop monitoring for changes.
-    mNoteManager.deleteObserver(this);
+    mAnimeManager.deleteObserver(this);
   }
 
   @Override
@@ -103,6 +103,6 @@ public class NoteLoader extends OkAsyncTaskLoader<List<Anime>> implements Observ
 
   @Override
   public void update(Observable o, Object arg) {
-    mCachedAnimes = mNoteManager.getCachedNotes();
+    mCachedAnimes = mAnimeManager.getCachedAnime();
   }
 }

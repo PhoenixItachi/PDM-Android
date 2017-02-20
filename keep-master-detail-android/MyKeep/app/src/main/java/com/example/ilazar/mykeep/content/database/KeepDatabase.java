@@ -51,7 +51,7 @@ public class KeepDatabase extends SQLiteOpenHelper {
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
   public User getCurrentUser() {
     Cursor c = getReadableDatabase().rawQuery("select token from " + TABLE_USERS, null, null);
-    if (c.moveToFirst()) {
+    if (c.moveToLast()) {
       return new User(null, null, c.getString(0));
     } else {
       return null;

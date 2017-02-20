@@ -2,6 +2,7 @@ package com.example.ilazar.mykeep;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,7 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ilazar.mykeep.content.Anime;
 import com.example.ilazar.mykeep.util.Cancellable;
@@ -20,21 +24,19 @@ import com.example.ilazar.mykeep.util.DialogUtils;
 import com.example.ilazar.mykeep.util.OnErrorListener;
 import com.example.ilazar.mykeep.util.OnSuccessListener;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 /**
  * An activity representing a list of Notes. This activity
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link NoteDetailActivity} representing
+ * lead to a {@link AnimeDetailActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class NoteListActivity extends AppCompatActivity {
+public class AnimeListActivity extends AppCompatActivity {
 
-    public static final String TAG = NoteListActivity.class.getSimpleName();
+    public static final String TAG = AnimeListActivity.class.getSimpleName();
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
@@ -44,7 +46,10 @@ public class NoteListActivity extends AppCompatActivity {
     /**
      * Whether or not the the notes were loaded.
      */
-    private boolean mNotesLoaded;
+    private boolean mAnimeLoaded;
+
+
+    private Boolean isOnline;
 
     /**
      * Reference to the singleton app used to access the app state and logic.
@@ -54,7 +59,7 @@ public class NoteListActivity extends AppCompatActivity {
     /**
      * Reference to the last async call used for cancellation.
      */
-    private Cancellable mGetNotesAsyncCall;
+    private Cancellable mGetAnimeAsyncCall;
     private View mContentLoadingView;
     private RecyclerView mRecyclerView;
 
@@ -74,8 +79,12 @@ public class NoteListActivity extends AppCompatActivity {
     protected void onStart() {
         Log.d(TAG, "onStart");
         super.onStart();
-        startGetNotesAsyncCall();
-//        mApp.getNoteManager().subscribeChangeListener();
+        try {
+            startGetAnimeAsyncCall();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        mApp.getAnimeManager().subscribeChangeListener();
     }
 
     @Override
@@ -83,8 +92,8 @@ public class NoteListActivity extends AppCompatActivity {
         Log.d(TAG, "onStop");
         super.onStop();
         //ensureGetNotesAsyncTaskCancelled();
-        ensureGetNotesAsyncCallCancelled();
-//        mApp.getNoteManager().unsubscribeChangeListener();
+        ensureGetAnimeAsyncCallCancelled();
+//        mApp.getAnimeManager().unsubscribeChangeListener();
     }
 
     private void setupToolbar() {
@@ -95,11 +104,33 @@ public class NoteListActivity extends AppCompatActivity {
 
     private void setupFloatingActionBar() {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fabAdd = (FloatingActionButton) findViewById(R.id.floatingAddButton);
+
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(AnimeListActivity.this, AnimeAddActivity.class);
+                startActivity(i);
+            }
+        });
+
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("message/rfc822");
+//                i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"uchiha09deva@yahoo.com"});
+//                i.putExtra(Intent.EXTRA_SUBJECT, "Anime local database updated.");
+//                i.putExtra(Intent.EXTRA_TEXT   , "New anime have been added to the cache. Go and check them.");
+                try {
+                    startActivity(Intent.createChooser(i, "Send mail..."));
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(AnimeListActivity.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -110,7 +141,7 @@ public class NoteListActivity extends AppCompatActivity {
     }
 
     private void checkTwoPaneMode() {
-        if (findViewById(R.id.note_detail_container) != null) {
+        if (findViewById(R.id.anime_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-w900dp).
             // If this view is present, then the
@@ -119,17 +150,18 @@ public class NoteListActivity extends AppCompatActivity {
         }
     }
 
-    private void startGetNotesAsyncCall() {
-        if (mNotesLoaded) {
+    private void startGetAnimeAsyncCall() throws InterruptedException {
+        if (mAnimeLoaded) {
             Log.d(TAG, "start getNotesAsyncCall - content already loaded, return");
             return;
         }
+
         showLoadingIndicator();
-        mGetNotesAsyncCall = mApp.getNoteManager().getNotesAsync(
+        mGetAnimeAsyncCall = mApp.getAnimeManager().getAnimeAsync(
                 new OnSuccessListener<List<Anime>>() {
                     @Override
                     public void onSuccess(final List<Anime> animes) {
-                        Log.d(TAG, "getNotesAsyncCall - success");
+                        Log.d(TAG, "getAnimesAsyncCall - success");
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -140,11 +172,28 @@ public class NoteListActivity extends AppCompatActivity {
                 }, new OnErrorListener() {
                     @Override
                     public void onError(final Exception e) {
-                        Log.d(TAG, "getNotesAsyncCall - error");
+                        Log.d(TAG, "getAnimesAsyncCall - error");
+                        ensureGetAnimeAsyncCallCancelled();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 showError(e);
+                                if(e.getMessage() == "401"){
+                                    Intent intent = new Intent(AnimeListActivity.this, LoginActivity.class);
+                                    intent.putExtra("status", "401 - Unauthorized");
+                                    mApp.getAnimeManager().setCurrentUser(null);
+                                    startActivity(intent);
+                                }else{
+                                    if(mApp.getAnimeManager().getCachedAnime() != null && mApp.getAnimeManager().getCachedAnime().size() > 0)
+                                        showContent(mApp.getAnimeManager().getCachedAnime());
+                                    else{
+                                        Intent intent = new Intent(AnimeListActivity.this, LoginActivity.class);
+                                        intent.putExtra("status", "401 - Unauthorized");
+                                        intent.putExtra("error", "No connection to the server and no data chached.");
+                                        mApp.getAnimeManager().setCurrentUser(null);
+                                        startActivity(intent);
+                                    }
+                                }
                             }
                         });
                     }
@@ -153,10 +202,10 @@ public class NoteListActivity extends AppCompatActivity {
     }
 
 
-    private void ensureGetNotesAsyncCallCancelled() {
-        if (mGetNotesAsyncCall != null) {
-            Log.d(TAG, "ensureGetNotesAsyncCallCancelled - cancelling the task");
-            mGetNotesAsyncCall.cancel();
+    private void ensureGetAnimeAsyncCallCancelled() {
+        if (mGetAnimeAsyncCall != null) {
+            Log.d(TAG, "ensureGetAnimeAsyncCallCancelled - cancelling the task");
+            mGetAnimeAsyncCall.cancel();
         }
     }
 
@@ -193,7 +242,7 @@ public class NoteListActivity extends AppCompatActivity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.note_list_content, parent, false);
+                    .inflate(R.layout.anime_list_content, parent, false);
             return new ViewHolder(view);
         }
 
@@ -201,23 +250,25 @@ public class NoteListActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.mItem = mValues.get(position);
             holder.mIdView.setText(mValues.get(position).getId());
-            holder.mContentView.setText(mValues.get(position).getText());
+            holder.mStatusView.setText(mValues.get(position).Status);
+            holder.mTitleView.setText(mValues.get(position).Title);
+            holder.mView.setBackgroundColor(Color.parseColor("#8800FC26"));
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
-                        arguments.putString(NoteDetailFragment.NOTE_ID, holder.mItem.getId());
-                        NoteDetailFragment fragment = new NoteDetailFragment();
+                        arguments.putString(AnimeDetailFragment.ANIME_ID, holder.mItem.getId());
+                        AnimeDetailFragment fragment = new AnimeDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.note_detail_container, fragment)
+                                .replace(R.id.anime_detail_container, fragment)
                                 .commit();
                     } else {
                         Context context = v.getContext();
-                        Intent intent = new Intent(context, NoteDetailActivity.class);
-                        intent.putExtra(NoteDetailFragment.NOTE_ID, holder.mItem.getId());
+                        Intent intent = new Intent(context, AnimeDetailActivity.class);
+                        intent.putExtra(AnimeDetailFragment.ANIME_ID, holder.mItem.getId());
                         context.startActivity(intent);
                     }
                 }
@@ -232,27 +283,23 @@ public class NoteListActivity extends AppCompatActivity {
         public class ViewHolder extends RecyclerView.ViewHolder {
             public final View mView;
             public final TextView mIdView;
-            public final TextView mContentView;
             public final TextView mTitleView;
-            public final TextView mScoreView;
-            public final TextView mSynopsisView;
-            public final TextView mNoEpisodesView;
+            public final TextView mStatusView;
             public Anime mItem;
 
             public ViewHolder(View view) {
                 super(view);
                 mView = view;
                 mIdView = (TextView) view.findViewById(R.id.id);
-                mContentView = (TextView) view.findViewById(R.id.content);
                 mTitleView = (TextView) view.findViewById(R.id.title);
-                mScoreView = (TextView) view.findViewById(R.id.score);
-                mSynopsisView = (TextView) view.findViewById(R.id.synopsis);
-                mNoEpisodesView = (TextView) view.findViewById(R.id.noEpisodes);
+                mStatusView = (TextView) view.findViewById(R.id.status);
+                Animation slideLeft = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slideleft);
+                mView.startAnimation(slideLeft);
             }
 
             @Override
             public String toString() {
-                return super.toString() + " '" + mTitleView.getText() + " " + mScoreView.getText() + "'";
+                return super.toString() + " '" + mTitleView.getText();
             }
         }
     }

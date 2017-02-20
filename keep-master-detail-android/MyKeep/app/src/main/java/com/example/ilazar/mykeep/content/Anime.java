@@ -2,31 +2,26 @@ package com.example.ilazar.mykeep.content;
 
 public class Anime {
 
-  public enum Status {
-    active,
-    archived;
-
-  }
-  private String mId;
-  private String mUserId;
-  private String mText;
-  private Status mStatus = Status.active;
-  private long mUpdated;
-  private int mNersion;
-
+  public String mId;
+  public String mUpdated;
   public String Title;
-  public String Score;
   public String Synopsis;
   public String NoEpisodes;
+  public String Status;
+  public String Synonyms;
+
 
   public Anime() {
   }
 
-  public Anime(String title,String score,String synopsis, String noEpisodes) {
+  public Anime(String id, String title,String synopsis, String noEpisodes, String status, String synonyms, String updated) {
     Title = title;
-    Score = score;
     Synopsis = synopsis;
     NoEpisodes = noEpisodes;
+    mId = id;
+    mUpdated = updated;
+    Synonyms = synonyms;
+    Status = status;
   }
 
   public String getId() {
@@ -37,55 +32,19 @@ public class Anime {
     mId = id;
   }
 
-  public String getUserId() {
-    return mUserId;
-  }
-
-  public void setUserId(String userId) {
-    mUserId = userId;
-  }
-
-  public String getText() {
-    return mText;
-  }
-
-  public void setText(String text) {
-    mText = text;
-  }
-
-  public Status getStatus() {
-    return mStatus;
-  }
-
-  public void setStatus(Status status) {
-    mStatus = status;
-  }
-
-  public long getUpdated() {
+  public String getUpdated() {
     return mUpdated;
   }
 
-  public void setUpdated(long updated) {
+  public void setUpdated(String updated) {
     mUpdated = updated;
-  }
-
-  public int getVersion() {
-    return mNersion;
-  }
-
-  public void setVersion(int version) {
-    mNersion = version;
   }
 
   @Override
   public String toString() {
     return "Anime{" +
         "mId='" + mId + '\'' +
-        ", mUserId='" + mUserId + '\'' +
-        ", mText='" + mText + '\'' +
-        ", mStatus=" + mStatus +
         ", mUpdated=" + mUpdated +
-        ", mNersion=" + mNersion +
         '}';
   }
 }

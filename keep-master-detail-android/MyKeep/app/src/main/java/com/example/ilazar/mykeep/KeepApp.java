@@ -3,32 +3,32 @@ package com.example.ilazar.mykeep;
 import android.app.Application;
 import android.util.Log;
 
-import com.example.ilazar.mykeep.net.NoteRestClient;
-import com.example.ilazar.mykeep.net.NoteSocketClient;
-import com.example.ilazar.mykeep.service.NoteManager;
+import com.example.ilazar.mykeep.net.AnimeRestClient;
+import com.example.ilazar.mykeep.net.AnimeSocketClient;
+import com.example.ilazar.mykeep.service.AnimeManager;
 
 public class KeepApp extends Application {
   public static final String TAG = KeepApp.class.getSimpleName();
-  private NoteManager mNoteManager;
-  private NoteRestClient mNoteRestClient;
-  private NoteSocketClient mNoteSocketClient;
+  private AnimeManager mAnimeManager;
+  private AnimeRestClient mAnimeRestClient;
+  private AnimeSocketClient mAnimeSocketClient;
 
   @Override
   public void onCreate() {
     Log.d(TAG, "onCreate");
     super.onCreate();
-    mNoteManager = new NoteManager(this);
-    mNoteRestClient = new NoteRestClient(this);
-    mNoteSocketClient = new NoteSocketClient(this);
-    mNoteManager.setNoteRestClient(mNoteRestClient);
-    mNoteManager.setNoteSocketClient(mNoteSocketClient);
+    mAnimeManager = new AnimeManager(this);
+    mAnimeRestClient = new AnimeRestClient(this);
+    mAnimeSocketClient = new AnimeSocketClient(this);
+    mAnimeManager.setAnimeRestClient(mAnimeRestClient);
+//    mAnimeManager.setNoteSocketClient(mAnimeSocketClient);
   }
 
-  public NoteManager getNoteManager() {
-    return mNoteManager;
+  public AnimeManager getAnimeManager() {
+    return mAnimeManager;
   }
-  public NoteRestClient getNoteRestClient() {
-    return mNoteRestClient;
+  public AnimeRestClient getAnimeRestClient() {
+    return mAnimeRestClient;
   }
 
   @Override

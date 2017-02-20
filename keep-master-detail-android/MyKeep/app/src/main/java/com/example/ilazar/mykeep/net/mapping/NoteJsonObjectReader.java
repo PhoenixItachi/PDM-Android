@@ -18,11 +18,7 @@ public class NoteJsonObjectReader implements ResourceReader<Anime, JSONObject> {
   public Anime read(JSONObject obj) throws Exception {
     Anime anime = new Anime();
     anime.setId(obj.getString(_ID));
-    anime.setText(obj.getString(TEXT));
-    anime.setUpdated(obj.getLong(UPDATED));
-    anime.setStatus(Anime.Status.valueOf(obj.getString(STATUS)));
-    anime.setUserId(obj.getString(USER_ID));
-    anime.setVersion(obj.getInt(VERSION));
+    anime.mId = obj.getString("id");
     return anime;
   }
 }

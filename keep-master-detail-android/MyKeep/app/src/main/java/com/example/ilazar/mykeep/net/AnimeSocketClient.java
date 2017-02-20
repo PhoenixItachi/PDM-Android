@@ -19,14 +19,14 @@ import static com.example.ilazar.mykeep.net.mapping.Api.Note.NOTE_CREATED;
 import static com.example.ilazar.mykeep.net.mapping.Api.Note.NOTE_DELETED;
 import static com.example.ilazar.mykeep.net.mapping.Api.Note.NOTE_UPDATED;
 
-public class NoteSocketClient {
-  private static final String TAG = NoteSocketClient.class.getSimpleName();
+public class AnimeSocketClient {
+  private static final String TAG = AnimeSocketClient.class.getSimpleName();
   private final Context mContext;
   private Socket mSocket;
   private final KeepDatabase mKD;
   private ResourceChangeListener<Anime> mResourceListener;
 
-  public NoteSocketClient(Context context) {
+  public AnimeSocketClient(Context context) {
     mContext = context;
     Log.d(TAG, "created");
     mKD = new KeepDatabase(context);

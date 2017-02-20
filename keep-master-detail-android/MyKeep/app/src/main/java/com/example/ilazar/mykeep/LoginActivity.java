@@ -8,9 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.ilazar.mykeep.content.User;
-import com.example.ilazar.mykeep.service.NoteManager;
+import com.example.ilazar.mykeep.service.AnimeManager;
 import com.example.ilazar.mykeep.util.Cancellable;
 import com.example.ilazar.mykeep.util.DialogUtils;
 import com.example.ilazar.mykeep.util.OnErrorListener;
@@ -19,18 +20,29 @@ import com.example.ilazar.mykeep.util.OnSuccessListener;
 public class LoginActivity extends AppCompatActivity {
 
   private Cancellable mCancellable;
-  private NoteManager mNoteManager;
+  private AnimeManager mAnimeManager;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Intent intext = getIntent();
+    String status = intext.getStringExtra("status");
+    String error = intext.getStringExtra("error");
     setContentView(R.layout.activity_login);
-    mNoteManager = ((KeepApp) getApplication()).getNoteManager();
-    User user = mNoteManager.getCurrentUser();
-    if (user != null) {
-      startNoteListActivity();
-      finish();
+    mAnimeManager = ((KeepApp) getApplication()).getAnimeManager();
+    User user = mAnimeManager.getCurrentUser();
+
+    if(error != null)
+      DialogUtils.showError(this, new Exception(error));
+    if(status != null && status.equals("401 - Unauthorized")){
+      Toast.makeText(this, "Token Invalid/Expired", Toast.LENGTH_SHORT).show();
+    }else{
+      if (user != null) {
+        startAnimeListActivity();
+        finish();
+      }
     }
+
     setupToolbar();
   }
 
@@ -60,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
   private void login() {
     EditText usernameEditText = (EditText) findViewById(R.id.username);
     EditText passwordEditText = (EditText) findViewById(R.id.password);
-    mCancellable = mNoteManager
+    mCancellable = mAnimeManager
         .loginAsync(
             usernameEditText.getText().toString(), passwordEditText.getText().toString(),
             new OnSuccessListener<String>() {
@@ -69,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                   @Override
                   public void run() {
-                    startNoteListActivity();
+                    startAnimeListActivity();
                   }
                 });
               }
@@ -86,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
             });
   }
 
-  private void startNoteListActivity() {
-    startActivity(new Intent(this, NoteListActivity.class));
+  private void startAnimeListActivity() {
+    startActivity(new Intent(this, AnimeListActivity.class));
   }
 }

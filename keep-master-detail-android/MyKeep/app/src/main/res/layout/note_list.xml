@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="com.example.ilazar.mykeep.NoteListActivity"
-    tools:listitem="@layout/note_list_content" />
+    tools:context="com.example.ilazar.mykeep.AnimeListActivity"
+    tools:listitem="@layout/anime_list_content" />

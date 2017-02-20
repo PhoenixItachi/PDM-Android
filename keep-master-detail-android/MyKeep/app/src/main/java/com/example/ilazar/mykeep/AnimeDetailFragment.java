@@ -19,17 +19,17 @@ import com.example.ilazar.mykeep.util.OnSuccessListener;
 
 /**
  * A fragment representing a single Anime detail screen.
- * This fragment is either contained in a {@link NoteListActivity}
- * in two-pane mode (on tablets) or a {@link NoteDetailActivity}
+ * This fragment is either contained in a {@link AnimeListActivity}
+ * in two-pane mode (on tablets) or a {@link AnimeDetailActivity}
  * on handsets.
  */
-public class NoteDetailFragment extends Fragment {
-    public static final String TAG = NoteDetailFragment.class.getSimpleName();
+public class AnimeDetailFragment extends Fragment {
+    public static final String TAG = AnimeDetailFragment.class.getSimpleName();
 
     /**
      * The fragment argument representing the item ID that this fragment represents.
      */
-    public static final String NOTE_ID = "note_id";
+    public static final String ANIME_ID = "anime_id";
 
     /**
      * The dummy content this fragment is presenting.
@@ -39,14 +39,14 @@ public class NoteDetailFragment extends Fragment {
     private KeepApp mApp;
 
     private Cancellable mFetchNoteAsync;
-    private TextView mNoteTextView;
+    private TextView mAnimeTextView;
     private CollapsingToolbarLayout mAppBarLayout;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public NoteDetailFragment() {
+    public AnimeDetailFragment() {
     }
 
     @Override
@@ -60,7 +60,7 @@ public class NoteDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        if (getArguments().containsKey(NOTE_ID)) {
+        if (getArguments().containsKey(ANIME_ID)) {
             // In a real-world scenario, use a Loader
             // to load content from a content provider.
             Activity activity = this.getActivity();
@@ -72,10 +72,10 @@ public class NoteDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
-        View rootView = inflater.inflate(R.layout.note_detail, container, false);
-        mNoteTextView = (TextView) rootView.findViewById(R.id.note_text);
-        fillNoteDetails();
-        fetchNoteAsync();
+        View rootView = inflater.inflate(R.layout.anime_detail, container, false);
+        mAnimeTextView = (TextView) rootView.findViewById(R.id.anime_text);
+        fillAnimeDetails();
+        fetchAnimeAsync();
         return rootView;
     }
 
@@ -85,9 +85,9 @@ public class NoteDetailFragment extends Fragment {
         super.onStop();
     }
 
-    private void fetchNoteAsync() {
-        mFetchNoteAsync = mApp.getNoteManager().getNoteAsync(
-                getArguments().getString(NOTE_ID),
+    private void fetchAnimeAsync() {
+        mFetchNoteAsync = mApp.getAnimeManager().getAnimeAsync(
+                getArguments().getString(ANIME_ID),
                 new OnSuccessListener<Anime>() {
 
                     @Override
@@ -96,7 +96,7 @@ public class NoteDetailFragment extends Fragment {
                             @Override
                             public void run() {
                                 mAnime = anime;
-                                fillNoteDetails();
+                                fillAnimeDetails();
                             }
                         });
                     }
@@ -114,12 +114,20 @@ public class NoteDetailFragment extends Fragment {
                 });
     }
 
-    private void fillNoteDetails() {
+    private void fillAnimeDetails() {
         if (mAnime != null) {
             if (mAppBarLayout != null) {
                 mAppBarLayout.setTitle(mAnime.Title);
             }
-            mNoteTextView.setText(mAnime.Title);
+            mAnimeTextView.setText(getAnimeText(mAnime));
         }
+    }
+
+    private String getAnimeText(Anime anime){
+        return "Title: " + anime.Title + "\n" +
+                "NoEpisodes:" + anime.NoEpisodes + "\n" +
+                "Synonyms:" + anime.Synonyms + "\n" +
+                "Synopsis:" + anime.Synopsis + "\n" +
+                "Status: " + anime.Status;
     }
 }
